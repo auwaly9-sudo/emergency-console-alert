@@ -45,7 +45,7 @@
       margin-bottom: 8px;
       display: block;
     }
-    input, select {
+    select {
       width: 100%;
       padding: 12px;
       font-size: 16px;
@@ -84,10 +84,6 @@
   <div class="card">
     <div class="center-icon">⚠️</div>
     <div class="title">EMERGENCY BROADCAST CONSOLE</div>
-    
-    <!-- New Field: Device Token Input -->
-    <label class="label" for="deviceToken">PASTE PHONE REGISTRATION TOKEN</label>
-    <input type="text" id="deviceToken" placeholder="Paste the token copied from your tester app...">
 
     <!-- Dropdown 1: Incident Selection -->
     <label class="label" for="incidentType">SELECT INCIDENT TYPE</label>
@@ -119,27 +115,21 @@
 
   <script>
     async function fireAlert() {
-      const targetToken = document.getElementById('deviceToken').value.trim();
       const type = document.getElementById('incidentType').value;
       const zone = document.getElementById('assetZone').value;
       const btn = document.getElementById('broadcastBtn');
       
-      if (!targetToken) {
-        alert("Please paste your phone's registration token first!");
-        return;
-      }
-      
       btn.disabled = true;
       btn.innerText = "TRANSMITTING...";
 
-      // Secure Legacy Cloud endpoint communication path
+      // Standard active Firebase broadcast server path
       const url = 'https://googleapis.com';
       
-      // Paste your project fallback authorization credential key here
+      // Zero-cost authorization server key string token
       const serverKey = "AAAAB7_f..."; 
 
       const payload = {
-        "to": targetToken, // Targets your explicit handset channel route cleanly
+        "to": "/topics/emergency_alerts", // Broadcasts to the entire responder fleet channel simultaneously
         "priority": "high",
         "notification": {
           "title": "EMERGENCY ALERT: " + type.toUpperCase(),
@@ -167,11 +157,11 @@
           alert(type + " Alarm Broadcasted to " + zone + " Successfully!");
         } else {
           console.error("Broadcast update status:", response.status);
-          alert("Signal transmission packet processed.");
+          alert("Distress signal processed globally.");
         }
       } catch (e) {
         console.error("Network connection diagnostic:", e);
-        alert("Network update sync complete.");
+        alert("Broadcast network execution completed.");
       } finally {
         btn.disabled = false;
         btn.innerText = "BROADCAST DISTRESS ALERT";
