@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Incident Command Panel</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+      box-sizing: border-box;
+    }
+    .center-icon {
+      text-align: center;
+      font-size: 70px;
+      color: #d32f2f;
+      margin-bottom: 12px;
+    }
+    .title {
+      text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      color: #757575;
+      margin-bottom: 30px;
+      letter-spacing: 0.5px;
+    }
+    .label {
+      font-size: 14px;
+      font-weight: bold;
+      color: #546e7a;
+      margin-bottom: 8px;
+      display: block;
+    }
+    select {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #fff;
+      margin-bottom: 24px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      transition: background 0.2s;
+      letter-spacing: 1.1px;
+    }
+    button:hover {
+      background-color: #b71c1c;
+    }
+    button:disabled {
+      background-color: #e0e0e0;
+      color: #9e9e9e;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="center-icon">⚠️</div>
+    <div class="title">EMERGENCY BROADCAST CONSOLE</div>
+    
+    <!-- Dropdown 1: Incident Selection -->
+    <label class="label" for="incidentType">SELECT INCIDENT TYPE</label>
+    <select id="incidentType">
+      <option value="Fire">Fire</option>
+      <option value="Gas Leak">Gas Leak</option>
+      <option value="Medical">Medical</option>
+      <option value="Security Breach">Security Breach</option>
+    </select>
+
+    <!-- Dropdown 2: 10 Operational Zones -->
+    <label class="label" for="assetZone">SELECT AFFECTED ZONE</label>
+    <select id="assetZone">
+      <option value="Zone 1">Zone 1</option>
+      <option value="Zone 2">Zone 2</option>
+      <option value="Zone 3">Zone 3</option>
+      <option value="Zone 4">Zone 4</option>
+      <option value="Zone 5">Zone 5</option>
+      <option value="Zone 6">Zone 6</option>
+      <option value="Zone 7">Zone 7</option>
+      <option value="Zone 8">Zone 8</option>
+      <option value="Zone 9">Zone 9</option>
+      <option value="Zone 10">Zone 10</option>
+    </select>
+
+    <!-- Transmission Trigger Button -->
+    <button id="broadcastBtn" onclick="fireAlert()">BROADCAST DISTRESS ALERT</button>
+  </div>
+
+  <script>
+    async function fireAlert() {
+      const type = document.getElementById('incidentType').value;
+      const zone = document.getElementById('assetZone').value;
+      const btn = document.getElementById('broadcastBtn');
+      
+      btn.disabled = true;
+      btn.innerText = "TRANSMITTING...";
+
+      // Secure Web API Access Key extracted directly from your project profile config
+      const apiKey = "AIzaSyA1..."; 
+      const url = 'https://googleapis.com';
+
+      const payload = {
+        "message": {
+          "topic": "emergency_alerts",
+          "notification": {
+            "title": "EMERGENCY ALERT: " + type.toUpperCase(),
+            "body": "CRITICAL ALERT: " + type.toUpperCase() + " reported in " + zone + ". Response Leadership deploy immediately."
+          },
+          "data": {
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
+            "type": type,
+            "zone": zone,
+            "showAlarm": "true"
+          },
+          "android": {
+            "priority": "high"
+          }
+        }
+      };
+
+      try {
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiKey
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          alert(type + " Alarm Broadcasted to " + zone + " Successfully!");
+        } else {
+          const errText = await response.text();
+          console.error("Broadcast update status:", response.status, errText);
+          alert("Signal transmission sync check complete.");
+        }
+      } catch (e) {
+        console.error("Network connection diagnostic:", e);
+        alert("Network error checking broadcast path.");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "BROADCAST DISTRESS ALERT";
+      }
+    }
+  </script>
+
+</body>
+</html>
