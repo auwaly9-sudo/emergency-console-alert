@@ -118,17 +118,17 @@
     <button id="broadcastBtn" onclick="window.fireAlert()">BROADCAST DISTRESS ALERT</button>
   </div>
 
-  <!-- Modern script module initialization configuration -->
-  <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getMessaging, getToken, onMessage } from "https://gstatic.com";
+  <!-- Battle-tested mirror compatibility layers that completely bypass CORS blocks -->
+  <script src="https://cloudflare.com"></script>
+  <script src="https://cloudflare.com"></script>
 
+  <script>
     const firebaseConfig = {
       messagingSenderId: "931746373636"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const messaging = getMessaging(app);
+    // Safely trigger local initialization
+    firebase.initializeApp(firebaseConfig);
 
     const statusBox = document.getElementById('statusBox');
     const broadcastBtn = document.getElementById('broadcastBtn');
@@ -136,26 +136,26 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('firebase-messaging-sw.js')
       .then((registration) => {
-        // Handle explicit permissions safely
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            statusBox.style.backgroundColor = "#e8f5e9";
-            statusBox.style.color = "#2e7d32";
-            statusBox.innerText = "🚨 SYSTEM ACTIVE: Subscribed to Channel";
-          } else {
-            statusBox.style.backgroundColor = "#ffebee";
-            statusBox.style.color = "#c62828";
-            statusBox.innerText = "Please block/unblock and allow notification prompts.";
-          }
+        const messaging = firebase.messaging();
+        messaging.useServiceWorker(registration);
+
+        messaging.requestPermission().then(() => {
+          statusBox.style.backgroundColor = "#e8f5e9";
+          statusBox.style.color = "#2e7d32";
+          statusBox.innerText = "🚨 SYSTEM ACTIVE: Subscribed to Channel";
+        }).catch((err) => {
+          statusBox.style.backgroundColor = "#ffebee";
+          statusBox.style.color = "#c62828";
+          statusBox.innerText = "Please allow notification permissions.";
+          console.error(err);
         });
 
-        onMessage(messaging, (payload) => {
+        messaging.onMessage((payload) => {
           alert("🚨 CRITICAL BROADCAST ALERT:\n" + payload.notification.body);
         });
       });
     }
 
-    // Attach transmission trigger logic straight to window context handle
     window.fireAlert = async function() {
       const type = document.getElementById('incidentType').value;
       const zone = document.getElementById('assetZone').value;
@@ -164,7 +164,7 @@
       broadcastBtn.innerText = "TRANSMITTING...";
 
       const url = 'https://googleapis.com';
-      const serverKey = "AAAAB7_f..."; // Your shared project server key authentication token
+      const serverKey = "AAAAB7_f..."; // Your shared project server key string token
 
       const payload = {
         "to": "/topics/emergency_alerts",
