@@ -1,0 +1,31 @@
+name: Compile Emergency App APK
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Java Environment
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          
+      - name: Setup Flutter Framework
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          
+      - name: Fetch Core Libraries
+        run: flutter pub get
+        
+      - name: Build Android Debug Installer
+        run: flutter build apk --debug
+        
+      - name: Save Installer File Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: emergency-app-installer
+          path: build/app/outputs/flutter-apk/app-debug.apk
