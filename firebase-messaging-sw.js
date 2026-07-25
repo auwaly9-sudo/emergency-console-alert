@@ -1,28 +1,21 @@
-// Official Background Engine Link enabling browser-to-browser network handshakes
-importScripts('https://cloudflare.com');
-importScripts('https://cloudflare.com');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
-// Configures background listeners natively to match your active cloud project ID
-const firebaseConfig = {
+firebase.initializeApp({
+  apiKey: "AIzaSyAgwfXdWSH1l84jcUfuc7Y2Fuq5G8a9ncQ",
+  authDomain: "protein-822b1.firebaseapp.com",
+  projectId: "protein-822b1",
+  storageBucket: "protein-822b1.appspot.com",
   messagingSenderId: "931746373636",
-  projectId: "protein-822b1"
-};
+  appId: "1:931746373636:web:2bc44ee7041a6a22d31551"
+});
 
-firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// Listens for alerts and forces a high-priority system notification while the browser tab is hidden
 messaging.onBackgroundMessage((payload) => {
-  console.log('Emergency data payload received in background:', payload);
-  
-  const notificationTitle = payload.notification ? payload.notification.title : 'EMERGENCY BROADCAST';
-  const notificationOptions = {
-    body: payload.notification ? payload.notification.body : 'Critical incident reported.',
-    icon: '/favicon.png',
-    badge: '/favicon.png',
-    tag: 'emergency-alert',
-    requireInteraction: true // Keeps the alert locked on screen until the user dismisses it
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  const { title, body } = payload.notification;
+  self.registration.showNotification(title, {
+    body,
+    icon: '/icon.png' // optional — add an icon file or remove this line
+  });
 });
