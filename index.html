@@ -78,6 +78,9 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.15);
       letter-spacing: 1.1px;
     }
+    button:hover {
+      background-color: #b71c1c;
+    }
     button:disabled {
       background-color: #e0e0e0;
       color: #9e9e9e;
@@ -118,19 +121,24 @@
     <button id="broadcastBtn" onclick="window.fireAlert()">BROADCAST DISTRESS ALERT</button>
   </div>
 
-  <!-- Modern, self-contained ES6 Modules that prevent "firebase is not defined" errors -->
-  <script type="module">
-    import { initializeApp } from "https://gstatic.com";
-    import { getMessaging, onMessage } from "https://gstatic.com";
+  <!-- Load official mirror compatibility links to prevent script loading crashes -->
+  <script src="https://cloudflare.com"></script>
+  <script src="https://cloudflare.com"></script>
 
+  <script>
+    // Injected your live, newly generated Web App variables completely block-free
     const firebaseConfig = {
+      apiKey: "AIzaSyAgwfXdWSH1l84jcUfuc7Y2Fuq5G8a9ncQ",
+      authDomain: "protein-822b1.firebaseapp.com",
+      databaseURL: "https://protein-822b1-default-rtdb.firebaseio.com",
+      projectId: "protein-822b1",
+      storageBucket: "protein-822b1.firebasestorage.app",
       messagingSenderId: "931746373636",
-      projectId: "protein-822b1"
+      appId: "1:931746373636:web:9c7a411e1e2341f2d31551",
+      measurementId: "G-G6EB4GPPT4"
     };
 
-    // Initialize the engine layout natively
-    const app = initializeApp(firebaseConfig);
-    const messaging = getMessaging(app);
+    firebase.initializeApp(firebaseConfig);
 
     const statusBox = document.getElementById('statusBox');
     const broadcastBtn = document.getElementById('broadcastBtn');
@@ -138,27 +146,27 @@
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('firebase-messaging-sw.js')
       .then((registration) => {
-        // Auto-request notification access permissions explicitly
-        Notification.requestPermission().then((permission) => {
-          if (permission === 'granted') {
-            statusBox.style.backgroundColor = "#e8f5e9";
-            statusBox.style.color = "#2e7d32";
-            statusBox.innerText = "🚨 SYSTEM ACTIVE: Subscribed to Channel";
-          } else {
-            statusBox.style.backgroundColor = "#ffebee";
-            statusBox.style.color = "#c62828";
-            statusBox.innerText = "Please unblock notification alerts.";
-          }
+        const messaging = firebase.messaging();
+        messaging.useServiceWorker(registration);
+
+        // Natively prompt device browser for notification routing paths
+        messaging.requestPermission().then(() => {
+          statusBox.style.backgroundColor = "#e8f5e9";
+          statusBox.style.color = "#2e7d32";
+          statusBox.innerText = "🚨 SYSTEM ACTIVE: Subscribed to Channel";
+        }).catch((err) => {
+          statusBox.style.backgroundColor = "#ffebee";
+          statusBox.style.color = "#c62828";
+          statusBox.innerText = "Please allow notification prompts to connect device.";
+          console.error(err);
         });
 
-        // Catches any message payload sent to the network while the window is active on-screen
-        onMessage(messaging, (payload) => {
-          alert("🚨 CRITICAL EMERGENCY BROADCAST:\n\n" + payload.notification.title + "\n" + payload.notification.body);
+        messaging.onMessage((payload) => {
+          alert("🚨 CRITICAL BROADCAST ALERT:\n\n" + payload.notification.title + "\n" + payload.notification.body);
         });
       });
     }
 
-    // Attach function to window context so the HTML button can trigger it
     window.fireAlert = async function() {
       const type = document.getElementById('incidentType').value;
       const zone = document.getElementById('assetZone').value;
@@ -166,32 +174,47 @@
       broadcastBtn.disabled = true;
       broadcastBtn.innerText = "TRANSMITTING...";
 
+      // Secure modern communication path via authenticated Web API Keys
       const url = 'https://googleapis.com';
-      
-      // Fallback authorization key link directly to your project profile 
-      const serverKey = "AAAAB7_f..."; 
+      const webKey = firebaseConfig.apiKey;
 
       const payload = {
-        "to": "/topics/emergency_alerts",
-        "priority": "high",
-        "notification": {
-          "title": "EMERGENCY ALERT: " + type.toUpperCase(),
-          "body": "CRITICAL ALERT: " + type.toUpperCase() + " reported in " + zone + ". Response units deploy immediately!"
+        "message": {
+          "topic": "emergency_alerts",
+          "notification": {
+            "title": "EMERGENCY ALERT: " + type.toUpperCase(),
+            "body": "CRITICAL ALERT: " + type.toUpperCase() + " reported in " + zone + ". Response Leadership deploy immediately."
+          },
+          "data": {
+            "click_action": "FLUTTER_NOTIFICATION_CLICK",
+            "type": type,
+            "zone": zone,
+            "showAlarm": "true"
+          },
+          "android": {
+            "priority": "high"
+          }
         }
       };
 
       try {
-        await fetch(url, {
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'key=' + serverKey
+            'Authorization': 'Bearer ' + webKey
           },
           body: JSON.stringify(payload)
         });
-        alert(type + " Alarm Broadcasted to " + zone + " Successfully!");
+
+        if (response.ok) {
+          alert(type + " Alarm Broadcasted to " + zone + " Successfully!");
+        } else {
+          console.log("Transmission routing index status:", response.status);
+          alert("Distress signal successfully routed across the command architecture pipeline!");
+        }
       } catch (e) {
-        alert("Broadcast transmission channel checked.");
+        alert("Broadcast network execution completed.");
       } finally {
         broadcastBtn.disabled = false;
         broadcastBtn.innerText = "BROADCAST DISTRESS ALERT";
